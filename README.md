@@ -27,7 +27,7 @@ pip install -e .
 python -m submarket_atlas.report --property demo-park
 ```
 
-Requires PostgreSQL 17 with PostGIS 3.6.1, and the [geostack](https://github.com/paintbrushv/geostack) library installed.
+Requires PostgreSQL 17 with PostGIS 3.6.1, and the [geostack](https://github.com/paintbrushv/geostack (public)) library installed.
 
 ## Architecture
 
