@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=70.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "submarket-atlas"
+version = "0.1.0"
+description = "Institutional-quality multifamily submarket intelligence platform"
+requires-python = ">=3.12"
+dependencies = [
+    "geostack[print-maps]",
+    "plotly>=6.0",
+    "kaleido>=1.0",
+    "jinja2>=3.1",
+    "weasyprint>=60",
+    "folium>=0.15",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.1"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #1B3A5C;
+            --secondary: #2E86AB;
+            --accent: #A23B72;
+            --positive: #2D936C;
+            --negative: #C1292E;
+            --neutral: #6B7280;
+            --bg: #FFFFFF;
+            --grid: #E5E7EB;
+            --text: #1F2937;
+            --light-bg: #F9FAFB;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* ── Page breaks for print/PDF ── */
+        .page-break { page-break-after: always; break-after: page; }
+
+        @media print {
+            .page-break { page-break-after: always; }
+            body { font-size: 12px; }
+            .no-print { display: none; }
+        }
+
+        /* ── Cover Page ── */
+        .cover {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+            background: linear-gradient(135deg, var(--primary) 0%, #0f2440 100%);
+            color: white;
+        }
+        .cover .report-type {
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 24px;
+        }
+        .cover h1 {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+        .cover .property-name {
+            font-size: 28px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 8px;
+        }
+        .cover .market {
+            font-size: 18px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 48px;
+        }
+        .cover .meta {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 24px;
+        }
+
+        /* ── Section Layout ── */
+        .section {
+            padding: 48px 64px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .section-header {
+            margin-bottom: 32px;
+        }
+        .section-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .section-header .subtitle {
+            font-size: 14px;
+            color: var(--neutral);
+        }
+        .section-divider {
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            margin-bottom: 32px;
+            border-radius: 2px;
+        }
+
+        /* ── Executive Summary ── */
+        .exec-bullets {
+            list-style: none;
+            padding: 0;
+        }
+        .exec-bullets li {
+            padding: 12px 0 12px 24px;
+            border-left: 3px solid var(--secondary);
+            margin-bottom: 12px;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        .thesis {
+            background: var(--light-bg);
+            border-left: 4px solid var(--primary);
+            padding: 20px 24px;
+            margin: 32px 0;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.7;
+            color: var(--primary);
+        }
+
+        /* ── Scorecard Grid ── */
+        .scorecard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 32px 0;
+        }
+        .scorecard-item {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .scorecard-item .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--neutral);
+            margin-bottom: 8px;
+        }
+        .scorecard-item .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+        }
+        .scorecard-item .vs-msa {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .scorecard-item .vs-msa.positive { color: var(--positive); }
+        .scorecard-item .vs-msa.negative { color: var(--negative); }
+        .scorecard-item .vs-msa.neutral { color: var(--neutral); }
+
+        /* ── Charts ── */
+        .chart-container {
+            margin: 24px 0;
+            text-align: center;
+        }
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 24px 0;
+        }
+        .chart-row img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        /* ── Key Takeaway Box ── */
+        .takeaway {
+            background: #EFF6FF;
+            border-left: 4px solid var(--secondary);
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        .takeaway .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .takeaway p {
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── Tables ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+        }
+        thead th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 12px;
+        }
+        thead th.num { text-align: right; }
+        tbody td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--grid);
+        }
+        tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        tbody tr:nth-child(even) { background: var(--light-bg); }
+        tbody tr:hover { background: #EFF6FF; }
+
+        .trend-up { color: var(--positive); font-weight: 600; }
+        .trend-down { color: var(--negative); font-weight: 600; }
+        .trend-flat { color: var(--neutral); }
+
+        /* ── Map embed ── */
+        .map-container {
+            width: 100%;
+            height: 500px;
+            border: 1px solid var(--grid);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 24px 0;
+        }
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ── Methodology ── */
+        .methodology {
+            font-size: 13px;
+            color: var(--neutral);
+            line-height: 1.8;
+        }
+        .methodology h3 {
+            color: var(--text);
+            font-size: 16px;
+            margin: 20px 0 8px;
+        }
+        .disclaimer {
+            background: var(--light-bg);
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 24px;
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        /* ── Narrative paragraphs ── */
+        .narrative {
+            font-size: 14px;
+            line-height: 1.8;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ COVER PAGE ═══════════════════════ -->
+<div class="cover">
+    <div class="report-type">Submarket Intelligence Report</div>
+    <h1>{{ property_name }}</h1>
+    <div class="market">{{ address }} | {{ market }} MSA</div>
+    <div class="meta">
+        Report Date: {{ report_date }}<br>
+        Prepared by Submarket Atlas | Data through ACS {{ latest_year }}
+    </div>
+</div>
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ EXECUTIVE SUMMARY ═══════════════════════ -->
+<div class="section">
+    <div class="section-header">
+        <h2>Executive Summary</h2>
+        <div class="subtitle">Key findings for {{ property_name }} — {{ market }}</div>
+    </div>
+    <div class="section-divider"></div>
+
+    <ul class="exec-bullets">
+        {% for bullet in exec_summary.bullets %}
+        <li>{{ bullet }}</li>
+        {% endfor %}
+    </ul>
+
+    <div class="thesis">
+        <strong>Submarket Thesis:</strong> {{ exec_summary.thesis }}
+    </div>
+
+    <h3 style="font-size:16px; color:var(--primary); margin: 24px 0 12px;">Key Metrics Scorecard</h3>
+    <div class="scorecard-grid">
+        {% for item in exec_summary.scorecard_items %}
+        <div class="scorecard-item">
+            <div class="label">{{ item.label }}</div>
+            <div class="value">{{ item.value }}</div>
+            {% if item.vs_msa %}
+            <div class="vs-msa {{ item.vs_msa_class }}">{{ item.vs_msa }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ LOCATION & GEOGRAPHY ═══════════════════════ -->
+<div class="section">
+    <div class="section-header">
+        <h2>Location & Geography</h2>
+        <div class="subtitle">Property context and analysis boundaries</div>
+    </div>
+    <div class="section-divider"></div>
+
+    <p class="narrative">
+        {{ property_name }} is located at {{ address }}, in census tract {{ property_tract }}
+        ({{ property_county }} County), within the {{ market }} MSA. {{ market_blurb }}
+        The analysis examines concentric rings of 1, 3, and 5 miles around the property, capturing
+        {{ ring_1mi_tracts }} tracts (1-mile), {{ ring_3mi_tracts }} tracts (3-mile), and
+        {{ ring_5mi_tracts }} tracts (5-mile).
+    </p>
+
+    <div class="map-container">
+        <iframe src="{{ map_filename }}" title="Property Location Map"></iframe>
+    </div>
+
+    {% if peer_entries %}
+    <p class="narrative">
+        Peer submarkets selected for comparison include
+        {%- for peer in peer_entries %}
+            <strong>{{ peer.label }}</strong>{% if peer.description %} ({{ peer.description }}){% endif -%}
+            {% if loop.last %}.{% elif loop.revindex == 2 %}{% if loop.length > 2 %},{% endif %} and {% else %}, {% endif %}
+        {%- endfor %}
+    </p>
+    {% endif %}
+</div>
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ POPULATION & DEMOGRAPHICS ═══════════════════════ -->
+<div class="section">
+    <div class="section-header">
+        <h2>Population & Demographic Trends</h2>
+        <div class="subtitle">Demand drivers for multifamily housing</div>
+    </div>
+    <div class="section-divider"></div>
+
+    <div class="chart-container">
+        {% if charts.population_trend %}
+        <img src="charts/population-trend.png" alt="Population Growth Trend">
+        {% endif %}
+    </div>
+
+    <div class="chart-row">
+        {% if charts.prime_renter_trend %}
+        <div><img src="charts/prime-renter-trend.png" alt="Prime Renter Trend"></div>
+        {% endif %}
+        {% if charts.age_distribution %}
+        <div><img src="charts/age-distribution.png" alt="Age Distribution"></div>
+        {% endif %}
+    </div>
+
+    {% if takeaways.demographics %}
+    <div class="takeaway">
+        <div class="label">Key Takeaway</div>
+        <p>{{ takeaways.demographics }}</p>
+    </div>
+    {% endif %}
+</div>
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ INCOME & AFFORDABILITY ═══════════════════════ -->
+<div class="section">
+    <div class="section-header">
+        <h2>Income & Affordability</h2>
+        <div class="subtitle">Rent growth capacity and affordability pressure</div>
+    </div>
+    <div class="section-divider"></div>
+
+    <div class="chart-container">
+        {% if charts.rent_vs_income %}
+        <img src="charts/rent-vs-income.png" alt="Rent vs Income Growth">
+        {% endif %}
+    </div>
+
+    <div class="chart-row">
+        {% if charts.income_trend %}
+        <div><img src="charts/income-trend.png" alt="Income Trend"></div>
+        {% endif %}
+        {% if charts.rent_burden %}
+        <div><img src="charts/rent-burden.png" alt="Rent Burden"></div>
+        {% endif %}
+    </div>
+
+    {% if charts.income_distribution %}
+    <div class="chart-container">
+        <img src="charts/income-distribution.png" alt="Income Distribution" style="max-width: 600px;">
+    </div>
+    {% endif %}
+
+    {% if takeaways.income %}
+    <div class="takeaway">
+        <div class="label">Key Takeaway</div>
+        <p>{{ takeaways.income }}</p>
+    </div>
+    {% endif %}
+</div>
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ HOUSING SUPPLY & RENTER DEMAND ═══════════════════════ -->
+<div class="section">
+    <div class="section-header">
+        <h2>Housing Supply & Renter Demand</h2>
+        <div class="subtitle">Supply/demand balance and structural demand indicators</div>
+    </div>
+    <div class="section-divider"></div>
+
+    <div class="chart-row">
+        {% if charts.housing_supply %}
+        <div><img src="charts/housing-supply.png" alt="Housing Supply Growth"></div>
+        {% endif %}
+        {% if charts.renter_propensity %}
+        <div><img src="charts/renter-propensity.png" alt="Renter Propensity"></div>
+        {% endif %}
+    </div>
+
+    {% if charts.units_by_structure %}
+    <div class="chart-container">
+        <img src="charts/units-by-structure.png" alt="Units by Structure Type">
+    </div>
+    {% endif %}
+
+    {% if takeaways.housing %}
+    <div class="takeaway">
+        <div class="label">Key Takeaway</div>
+        <p>{{ takeaways.housing }}</p>
+    </div>
+    {% endif %}
+</div>
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ PEER SUBMARKET COMPARISON ═══════════════════════ -->
+<div class="section">
+    <div class="section-header">
+        <h2>Peer Submarket Comparison</h2>
+        <div class="subtitle">Relative positioning against recognized {{ peer_market_label }}</div>
+    </div>
+    <div class="section-divider"></div>
+
+    {% if charts.peer_comparison_radar %}
+    <div class="chart-container">
+        <img src="charts/peer-comparison-radar.png" alt="Peer Comparison Radar" style="max-width: 700px;">
+    </div>
+    {% endif %}
+
+    {% if peer_comparison_table %}
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                {% for geo in peer_geos %}
+                <th class="num">{{ geo.label }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in peer_comparison_table %}
+            <tr>
+                <td>{{ row.metric }}</td>
+                {% for val in row["values"] %}
+                <td class="num">{{ val }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ DATA TABLES ═══════════════════════ -->
+<div class="section">
+    <div class="section-header">
+        <h2>Data Tables</h2>
+        <div class="subtitle">Full demographic snapshot — all metrics, all geographies</div>
+    </div>
+    <div class="section-divider"></div>
+
+    <h3 style="font-size:16px; color:var(--primary); margin-bottom:12px;">Demographic Snapshot ({{ latest_year }})</h3>
+    {% if snapshot_table %}
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                {% for geo in snapshot_geos %}
+                <th class="num">{{ geo.label }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in snapshot_table %}
+            <tr>
+                <td>{{ row.metric }}</td>
+                {% for val in row["values"] %}
+                <td class="num">{{ val }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <h3 style="font-size:16px; color:var(--primary); margin: 24px 0 12px;">Growth Summary (CAGRs)</h3>
+    {% if growth_table %}
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                {% for geo in growth_geos %}
+                <th class="num">{{ geo.label }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in growth_table %}
+            <tr>
+                <td>{{ row.metric }}</td>
+                {% for val in row["values"] %}
+                <td class="num {{ val.cls }}">{{ val.text }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ METHODOLOGY ═══════════════════════ -->
+<div class="section methodology">
+    <div class="section-header">
+        <h2>Methodology & Sources</h2>
+    </div>
+    <div class="section-divider"></div>
+
+    <h3>Data Sources</h3>
+    <p>All demographic and housing data sourced from the <strong>U.S. Census Bureau American Community Survey (ACS)
+    5-Year Estimates</strong>, vintages {{ earliest_year }}–{{ latest_year }}. ACS 5-year estimates provide the most
+    reliable small-area data by pooling 60 months of survey responses.</p>
+
+    <h3>Geographic Methodology</h3>
+    <p>Analysis geographies are defined as concentric rings (1, 3, and 5 miles) centered on the property coordinates
+    ({{ lat }}, {{ lon }}). Census tracts are included in a ring if their <strong>centroid</strong> falls within the radius.
+    For tracts that partially overlap a ring boundary, <strong>area-weighted aggregation</strong> adjusts contributions
+    proportionally. Demographic metrics are <strong>population-weighted</strong> — a tract with 5,000 residents counts
+    more than one with 500.</p>
+
+    <h3>MSA Definition</h3>
+    <p>The {{ msa_label }} MSA (FIPS {{ cbsa_code }}) comprises {{ msa_county_count }}{% if state_label %} {{ state_label }}{% endif %} counties.
+    MSA-level data is pulled directly from the Census API using the metropolitan statistical area geography.</p>
+
+    <h3>Peer Submarkets</h3>
+    <p>Peer submarkets are defined by a center point and radius around recognizable {{ peer_market_label }}:
+        {%- for peer in peer_entries %}
+            {{ peer.label }}{% if peer.radius_miles %} ({{ peer.radius_miles }}-mile radius){% endif -%}
+            {% if loop.last %}.{% elif loop.revindex == 2 %}{% if loop.length > 2 %},{% endif %} and {% else %}, {% endif %}
+        {%- endfor %}
+    All tracts whose centroids fall within each peer radius are included.</p>
+
+    <h3>Data Quality Notes</h3>
+    <ul style="margin:8px 0 8px 20px;">
+        <li>ACS estimates for small geographies carry <strong>margins of error</strong>. Trends over multiple years are more reliable than single-year point estimates.</li>
+        <li>The <strong>2020 ACS vintage</strong> was affected by COVID-19 data collection disruptions. Values for 2020 should be interpreted with caution.</li>
+        <li>Median values (income, rent, home value, age) are approximated at the submarket level using population-weighted averages of tract medians.</li>
+    </ul>
+
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This report is for informational purposes only. All data is derived from public
+        Census Bureau sources and processed through automated analytical pipelines. Verify all figures against primary
+        sources before making investment decisions. Past demographic trends do not guarantee future performance.
+    </div>
+</div>
+
+</body>
+</html>

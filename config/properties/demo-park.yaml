@@ -1,0 +1,41 @@
+name: "Demo Park Apartments"
+slug: "demo-park"
+address: "742 Sample Ave, Dallas, TX 75201"
+coordinates:
+  lat: 32.7767
+  lon: -96.7970
+market: "Dallas-Fort Worth"
+county: "Dallas"
+county_fips: "113"
+state: "TX"
+state_fips: "48"
+property_type: "Multifamily"
+# Property tract GEOID (census tract containing the property point).
+property_tract: "48113021900"
+
+# CBSA (Core-Based Statistical Area) for the MSA comparison row.
+cbsa_code: "19100"
+msa_label: "Dallas-Fort Worth-Arlington, TX"
+msa_centroid:
+  lat: 32.7767
+  lon: -96.7970
+
+# Free-text market context used in the report's Location & Geography narrative.
+market_blurb: "The property sits in the urban core of the DFW metroplex."
+
+# Short label describing the family of peer submarkets being compared (used in
+# the Peer Submarket Comparison subtitle and Methodology Peer Submarkets line).
+peer_market_label: "DFW multifamily corridors"
+
+analysis:
+  radii: [1, 3, 5]  # miles
+  years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
+
+  # DFW MSA county FIPS codes (state 48)
+  msa_counties:
+    - "113"   # Dallas
+    - "121"   # Denton
+    - "139"   # Ellis
+    - "231"   # Hunt
+    - "251"   # Johnson
+    - "85"    # Collin
