@@ -13,7 +13,10 @@ from jinja2 import Environment, FileSystemLoader
 
 load_dotenv()
 
-from geostack.db import get_engine
+# geostack is a documented prerequisite (see submarket_atlas._deps); its
+# import is deferred to call time so this module (and the report template
+# machinery) stays importable without it.
+from submarket_atlas._deps import require_geostack
 from submarket_atlas.config import load_property, list_properties
 from submarket_atlas.spatial import build_all_geographies
 from submarket_atlas.demographics import pull_demographics, load_cached_data
@@ -32,7 +35,8 @@ from submarket_atlas.narrative import (
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-TEMPLATE_DIR = PROJECT_ROOT / "templates"
+# Report template ships as package data (submarket_atlas/templates/).
+TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
 OUTPUT_DIR = PROJECT_ROOT / "output"
 
 
@@ -231,11 +235,14 @@ def _export_data(scorecard: dict, geographies: dict, config: dict, output_dir: P
     pd.DataFrame(rows_for_csv).to_csv(data_dir / "peer-submarket-comparison.csv", index=False)
 
 
-def generate_report(slug: str, skip_pull: bool = False):
+def generate_report(slug: str, skip_pull: bool = False, output_dir: Path | None = None):
     """Full pipeline: pull data, compute metrics, generate report."""
     config = load_property(slug)
+    require_geostack()
+    from geostack.db import get_engine
+
     engine = get_engine()
-    output_dir = OUTPUT_DIR / config["slug"]
+    output_dir = Path(output_dir) if output_dir else OUTPUT_DIR / config["slug"]
     output_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"═══ Submarket Atlas — {config['name']} ═══\n")
@@ -406,10 +413,21 @@ def main():
 
     logging.basicConfig(level=logging.INFO)
 
+    # Typed prerequisite check: geostack is a documented prerequisite, not a
+    # PyPI-resolvable dependency (see submarket_atlas._deps).
+    from submarket_atlas._deps import require_geostack
+
+    try:
+        require_geostack()
+    except ImportError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(2)
+
     parser = argparse.ArgumentParser(description="Generate submarket intelligence report")
     parser.add_argument("--property", help="Property slug")
     parser.add_argument("--list", action="store_true", help="List configured properties")
     parser.add_argument("--skip-pull", action="store_true", help="Skip demographics pull (use cache)")
+    parser.add_argument("--output-dir", help="Write reports to this directory (default: ./output/<slug>)")
     args = parser.parse_args()
 
     if args.list:
@@ -422,7 +440,7 @@ def main():
     if not args.property:
         parser.error("--property is required (or use --list)")
 
-    generate_report(args.property, skip_pull=args.skip_pull)
+    generate_report(args.property, skip_pull=args.skip_pull, output_dir=args.output_dir)
 
 
 if __name__ == "__main__":

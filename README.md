@@ -16,18 +16,25 @@ Institutional-quality multifamily submarket intelligence platform. Generates nar
 ## Quick Start
 
 ```bash
-# Setup
-python3.14 -m venv .venv
+# Setup (Python 3.11+)
+python3 -m venv .venv
 source .venv/bin/activate
-pip install -e ../geostack
-pip install -e "../geostack[viz,notebooks,census]"
-pip install -e .
+
+# geostack is a documented prerequisite (its PyPI name is occupied by an
+# unrelated project), so install the real engine from GitHub first:
+pip install "geostack[viz] @ git+https://github.com/paintbrushv/geostack.git"
+
+pip install .
+
+# Optional: PNG chart export and PDF report export
+pip install ".[png]"    # plotly kaleido engine
+pip install ".[pdf]"    # weasyprint (requires system cairo/pango)
 
 # Generate a report
 python -m submarket_atlas.report --property demo-park
 ```
 
-Requires PostgreSQL 17 with PostGIS 3.6.1, and the [geostack](https://github.com/paintbrushv/geostack (public)) library installed.
+Requires PostgreSQL 17 with PostGIS 3.6.1, and the [geostack](https://github.com/paintbrushv/geostack) engine installed as a prerequisite (see Quick Start — its PyPI name is occupied by an unrelated project, so install it from GitHub).
 
 ## Architecture
 
@@ -40,16 +47,18 @@ src/submarket_atlas/
 ├── charts.py          # Plotly chart generation with institutional theme
 ├── map.py             # Folium interactive map generation
 ├── narrative.py       # Executive summary and takeaway generation
-└── report.py          # Full pipeline orchestrator
+├── report.py          # Full pipeline orchestrator
+└── templates/
+    └── report.html    # Jinja2 report template (shipped package data)
 ```
 
 ## Adding a New Property
 
-1. Create a YAML config in `config/properties/`
+1. Create a YAML config in `config/properties/` (repo) — installed-library users can point `CONFIG_DIR` anywhere, and `submarket_atlas/properties/demo-park.yaml` ships as a bundled example
 2. Specify coordinates, FIPS codes, analysis radii, and peer submarkets
 3. Run the report pipeline
 
-See `config/properties/demo-park.yaml` for a complete example.
+See `src/submarket_atlas/properties/demo-park.yaml` for a complete example.
 
 ## Data Sources
 

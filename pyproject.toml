@@ -1,25 +1,71 @@
 [build-system]
-requires = ["setuptools>=70.0", "wheel"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "submarket-atlas"
 version = "0.1.0"
-description = "Institutional-quality multifamily submarket intelligence platform"
-requires-python = ">=3.12"
+description = "Institutional-quality multifamily submarket intelligence: ring demographics, peer benchmarking, and narrative reports from U.S. Census ACS data"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    {name = "paintbrush"}
+]
+keywords = [
+    "multifamily",
+    "real-estate",
+    "submarket",
+    "demographics",
+    "census",
+    "acs",
+    "site-analysis",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Real Estate",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+]
 dependencies = [
-    "geostack[print-maps]",
+    "geopandas>=1.0.0",
+    "shapely>=2.0.0",
     "plotly>=6.0",
-    "kaleido>=1.0",
     "jinja2>=3.1",
-    "weasyprint>=60",
     "folium>=0.15",
+    "pandas>=2.0.0",
+    "numpy>=1.24",
+    "sqlalchemy>=2.0",
+    "requests>=2.31",
     "pyyaml>=6.0",
     "python-dotenv>=1.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/paintbrushv/plat-submarket-atlas"
+Repository = "https://github.com/paintbrushv/plat-submarket-atlas"
+Issues = "https://github.com/paintbrushv/plat-submarket-atlas/issues"
+Changelog = "https://github.com/paintbrushv/plat-submarket-atlas/blob/main/README.md"
+
 [project.optional-dependencies]
+# PNG chart export via plotly's kaleido engine (report pipeline step 4).
+png = [
+    "kaleido>=1.0",
+]
+# PDF export of the HTML report (weasyprint needs cairo/pango system libs).
+pdf = [
+    "weasyprint>=60",
+]
 dev = ["pytest>=8.0", "ruff>=0.1"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+submarket_atlas = ["templates/*.html", "properties/*.yaml"]

@@ -12,7 +12,19 @@ from sqlalchemy import text
 
 load_dotenv()
 
-from geostack.db import get_engine
+# geostack is a documented prerequisite (see submarket_atlas._deps); its
+# import is deferred to call time so this module stays importable (and its
+# constants/metadata usable) without it.
+from submarket_atlas._deps import require_geostack
+
+
+def _gs():
+    """Call-time geostack.db accessor (typed prerequisite guard)."""
+    require_geostack()
+    from geostack import db
+
+    return db
+
 
 logger = logging.getLogger(__name__)
 
@@ -312,7 +324,7 @@ def pull_demographics(
 
     This is the main entry point for the demographics pipeline.
     """
-    engine = get_engine()
+    engine = _gs().get_engine()
     api_key = os.environ.get("CENSUS_API_KEY", "")
     years = config["analysis"]["years"]
     state_fips = config["state_fips"]
@@ -454,7 +466,7 @@ def load_cached_data(geoids: list[str], years: list[int] = None, engine=None) ->
 
     Returns wide-format DataFrame with geoid, year, and one column per variable.
     """
-    engine = engine or get_engine()
+    engine = engine or _gs().get_engine()
 
     conditions = ["geoid = ANY(:geoids)"]
     params = {"geoids": geoids}
@@ -498,7 +510,7 @@ def main():
     config = load_property(args.property)
     print(f"Pulling demographics for: {config['name']}")
 
-    engine = get_engine()
+    engine = _gs().get_engine()
     geographies = build_all_geographies(config, engine)
 
     print(f"Property tract: {geographies['property_tract']}")

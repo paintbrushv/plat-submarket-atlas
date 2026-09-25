@@ -13,8 +13,18 @@ from shapely.geometry import Point
 
 load_dotenv()
 
-from geostack.db import get_engine, read_postgis
+# geostack is a documented prerequisite (see submarket_atlas._deps); its
+# import is deferred to call time so this module stays importable without it.
+from submarket_atlas._deps import require_geostack
 from submarket_atlas.charts import COLORS
+
+
+def _gs():
+    """Call-time geostack.db accessor (typed prerequisite guard)."""
+    require_geostack()
+    from geostack import db
+
+    return db
 
 METERS_PER_MILE = 1609.344
 
@@ -40,7 +50,7 @@ def generate_map(
     output_dir: Path = None,
 ) -> Path:
     """Generate the interactive Folium map."""
-    engine = get_engine()
+    engine = _gs().get_engine()
     lat = config["coordinates"]["lat"]
     lon = config["coordinates"]["lon"]
 
@@ -84,7 +94,7 @@ def generate_map(
         geoids = ring_5mi["geoid"].tolist()
         if geoids:
             placeholders = ",".join(f"'{g}'" for g in geoids)
-            tracts_gdf = read_postgis(
+            tracts_gdf = _gs().read_postgis(
                 f"SELECT geoid, name, geometry FROM census_tracts WHERE geoid IN ({placeholders})",
                 engine,
             )
@@ -193,7 +203,7 @@ def main():
     args = parser.parse_args()
 
     config = load_property(args.property)
-    engine = get_engine()
+    engine = _gs().get_engine()
     geographies = build_all_geographies(config, engine)
 
     output_dir = Path(__file__).resolve().parent.parent.parent / "output" / config["slug"]

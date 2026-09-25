@@ -6,7 +6,12 @@ from pathlib import Path
 import yaml
 
 
-CONFIG_DIR = Path(__file__).resolve().parent.parent.parent / "config" / "properties"
+# Repo-level property configs (config/properties/) take precedence; the
+# shipped example (submarket_atlas/properties/) is the fallback so an
+# installed package still resolves `demo-park` without a checkout.
+_PACKAGE_DIR = Path(__file__).resolve().parent
+_REPO_CONFIG_DIR = Path(__file__).resolve().parent.parent.parent / "config" / "properties"
+CONFIG_DIR = _REPO_CONFIG_DIR if _REPO_CONFIG_DIR.is_dir() else _PACKAGE_DIR / "properties"
 
 
 REQUIRED_FIELDS = (

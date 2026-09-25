@@ -9,7 +9,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from geostack.db import get_engine, read_postgis, read_sql
+# geostack is a documented prerequisite (see submarket_atlas._deps); its
+# import is deferred to call time so this module stays importable without it.
+from submarket_atlas._deps import require_geostack
+
+
+def _gs():
+    """Call-time geostack.db accessor (typed prerequisite guard)."""
+    require_geostack()
+    from geostack import db
+
+    return db
 
 
 METERS_PER_MILE = 1609.344
@@ -17,8 +27,8 @@ METERS_PER_MILE = 1609.344
 
 def get_property_tract(lon: float, lat: float, engine=None) -> str:
     """Find the census tract GEOID containing a point."""
-    engine = engine or get_engine()
-    result = read_sql(
+    engine = engine or _gs().get_engine()
+    result = _gs().read_sql(
         """
         SELECT geoid FROM census_tracts
         WHERE ST_Contains(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326))
@@ -52,7 +62,7 @@ def tracts_in_radius(
     Returns DataFrame with geoid, name, county_fips, distance_miles,
     and area_weight (fraction of tract area inside the ring).
     """
-    engine = engine or get_engine()
+    engine = engine or _gs().get_engine()
     radius_m = radius_miles * METERS_PER_MILE
 
     from sqlalchemy import text
@@ -106,7 +116,7 @@ def build_all_geographies(config: dict, engine=None) -> dict:
         peers: {slug: {label, description, tracts: [GEOIDs]}}
         msa_counties: [county FIPS codes]
     """
-    engine = engine or get_engine()
+    engine = engine or _gs().get_engine()
     lon = config["coordinates"]["lon"]
     lat = config["coordinates"]["lat"]
 
@@ -140,11 +150,11 @@ def build_all_geographies(config: dict, engine=None) -> dict:
 
 def get_tract_geometries(geoids: list[str], engine=None) -> gpd.GeoDataFrame:
     """Load tract geometries for a list of GEOIDs."""
-    engine = engine or get_engine()
+    engine = engine or _gs().get_engine()
     if not geoids:
         return gpd.GeoDataFrame()
     placeholders = ",".join(f"'{g}'" for g in geoids)
-    return read_postgis(
+    return _gs().read_postgis(
         f"SELECT geoid, name, county_fips, geometry FROM census_tracts WHERE geoid IN ({placeholders})",
         engine,
     )

@@ -6,8 +6,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from geostack.db import get_engine
+# geostack is a documented prerequisite (see submarket_atlas._deps); its
+# import is deferred to call time so pure analytics helpers below stay
+# importable without it.
+from submarket_atlas._deps import require_geostack
 from submarket_atlas.demographics import load_cached_data, ALL_VARIABLES
+
+
+def _get_engine():
+    """PostGIS engine accessor (requires the geostack prerequisite)."""
+    require_geostack()
+    from geostack.db import get_engine
+
+    return get_engine()
 
 
 def cagr(start_val, end_val, years: int) -> float | None:
@@ -204,7 +215,7 @@ def compute_time_series(
 
     Returns DataFrame with year as index and derived metrics as columns.
     """
-    engine = engine or get_engine()
+    engine = engine or _get_engine()
     raw = load_cached_data(geoid_list, years, engine)
 
     if raw.empty:
@@ -283,7 +294,7 @@ def build_scorecard(
 
     Returns nested dict: {geography_name: {year: {metric: value}, growth: {...}}}
     """
-    engine = engine or get_engine()
+    engine = engine or _get_engine()
     years = config["analysis"]["years"]
     scorecard = {}
 
